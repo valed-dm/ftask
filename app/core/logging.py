@@ -10,7 +10,7 @@ from .config import settings
 
 
 # Bound logger with a custom name available in record["extra"]
-log = logger.bind(name="SCOPED_AUTH")
+log = logger.bind(name="FTASK")
 
 log.add(
     settings.LOG_FILE,
