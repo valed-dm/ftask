@@ -1,0 +1,58 @@
+# Git and version control
+.git
+.gitignore
+
+# Docker specific files
+.dockerignore
+Dockerfile
+docker-compose.yml
+
+# Environment variables and secrets
+# Crucial for security: never include your .env file in the image
+.env
+*.env
+
+# Python virtual environment
+# A common source of bloat. Dependencies are installed fresh via poetry.
+.venv
+venv
+env
+
+# Python bytecode and caches
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Poetry files - poetry.lock and pyproject.toml are needed, but cache is not.
+.poetry-cache/
+
+# Testing artifacts and caches
+tests/
+.pytest_cache/
+.coverage
+htmlcov/
+pytest.ini
+
+# Mypy cache
+.mypy_cache/
+mypy.ini
+
+# IDE and editor configuration
+.vscode/
+.idea/
+*.sublime-*
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Documentation and miscellaneous project files
+# These are not needed for the application to run.
+README.md
+LICENSE
+docs/
+
+# Backup files created by editors or scripts
+*.bak
+*.swp
