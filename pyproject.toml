@@ -1,7 +1,7 @@
 [project]
-name = "scoped-api"
+name = "ftask"
 version = "0.1.0"
-description = "FastAPI template with **JWT authentication** and **role-based scopes**."
+description = "FastAPI task manager with **JWT authentication** and **role-based scopes**."
 authors = [
     {name = "dmvaled", email = "dmvaled@gmail.com"}
 ]
@@ -18,28 +18,31 @@ dependencies = [
     "greenlet (>=3.2.4,<4.0.0)",
     "httpx (>=0.28.1,<0.29.0)",
     "loguru (>=0.7.3)",
+    "poetry-core (>=2.0.0)",
     "prometheus-client (>=0.22.1,<0.23.0)",
-    "pyjwt (>=2.10.1,<3.0.0)",
     "pydantic (>=2.11.7,<3.0.0)",
     "pydantic-settings (>=2.10.1,<3.0.0)",
+    "pyjwt (>=2.10.1,<3.0.0)",
     "python-multipart (>=0.0.20,<0.0.21)",
-    "poetry-core (>=2.0.0)",
     "sentry-sdk (>=2.34.1,<3.0.0)",
     "sqlalchemy (>=2.0.43)",
-    "uvicorn (>=0.35.0,<0.36.0)"
+    "uvicorn (>=0.35.0,<0.36.0)",
 ]
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.11.2"
-pre-commit = "^4.0.1"
 mypy = "^1.17.1"
+pre-commit = "^4.0.1"
+ruff = "^0.11.2"
 testcontainers = "^4.12.0"
 
 [tool.poetry.group.test.dependencies]
-pytest = "^8.4.1"
-pytest-cov = "^6.2.1"
-pytest-asyncio = "^1.1.0"
 httpx = "^0.28.1"
+pytest = "^8.4.1"
+pytest-alembic = "^0.12.1"
+pytest-asyncio = "^1.1.0"
+pytest-cov = "^6.2.1"
+pytest-dotenv = "^0.5.2"
+pytest-mock = "^3.14.1"
 
 [tool.ruff]
 line-length = 88
