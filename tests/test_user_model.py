@@ -9,7 +9,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db import User
+from app.user.models import User as DBUser
 
 
 class TestUserModel:
@@ -21,7 +21,7 @@ class TestUserModel:
         """
         Tests that a user can be created successfully with all fields populated.
         """
-        user = User(
+        user = DBUser(
             username="testuser",
             email="test@example.com",
             full_name="Test User",
@@ -45,7 +45,7 @@ class TestUserModel:
         """
         Tests that default values are applied correctly when not specified.
         """
-        user = User(username="defaultuser", hashed_password="another_hash")
+        user = DBUser(username="defaultuser", hashed_password="another_hash")
         db_session.add(user)
         await db_session.commit()
         await db_session.refresh(user)
@@ -63,15 +63,15 @@ class TestUserModel:
         """
         Tests that a commit with a duplicate username fails and rolls back.
         """
-        user1 = User(username="unique_username", hashed_password="hash1")
+        user1 = DBUser(username="unique_username", hashed_password="hash1")
         db_session.add(user1)
         await db_session.commit()
 
         # Check that the first user exists
-        assert await raw_db_session.get(User, user1.id) is not None
+        assert await raw_db_session.get(DBUser, user1.id) is not None
 
         # Attempt to add a user with the same username
-        user2 = User(username="unique_username", hashed_password="hash2")
+        user2 = DBUser(username="unique_username", hashed_password="hash2")
         db_session.add(user2)
 
         # We expect this to raise an error and cause the fixture to roll back.
@@ -81,7 +81,7 @@ class TestUserModel:
         # After the error, the fixture's transaction is rolled back.
         # We use our *separate, raw session* to verify that the second user
         # does NOT exist in the database.
-        count = await raw_db_session.scalar(select(func.count()).select_from(User))
+        count = await raw_db_session.scalar(select(func.count()).select_from(DBUser))
         assert count == 1
 
     async def test_username_is_not_nullable(
@@ -90,14 +90,14 @@ class TestUserModel:
         """
         Tests that a commit with a null username fails.
         """
-        user = User(username=None, hashed_password="some_hash")
+        user = DBUser(username=None, hashed_password="some_hash")
         db_session.add(user)
 
         with pytest.raises(IntegrityError):
             await db_session.commit()
 
-        # Verify no users were created.
-        count = await raw_db_session.scalar(select(func.count()).select_from(User))
+        # Verify no user were created.
+        count = await raw_db_session.scalar(select(func.count()).select_from(DBUser))
         assert count == 0
 
     async def test_email_uniqueness(
@@ -106,13 +106,13 @@ class TestUserModel:
         """
         Tests that a commit with a duplicate email fails.
         """
-        user1 = User(
+        user1 = DBUser(
             username="user1", email="unique@example.com", hashed_password="hash1"
         )
         db_session.add(user1)
         await db_session.commit()
 
-        user2 = User(
+        user2 = DBUser(
             username="user2", email="unique@example.com", hashed_password="hash2"
         )
         db_session.add(user2)
@@ -121,16 +121,16 @@ class TestUserModel:
             await db_session.commit()
 
         # Verify only the first user exists.
-        count = await raw_db_session.scalar(select(func.count()).select_from(User))
+        count = await raw_db_session.scalar(select(func.count()).select_from(DBUser))
         assert count == 1
 
     async def test_multiple_null_emails(self, db_session: AsyncSession) -> None:
         """
-        Tests that multiple users can have a NULL email, as unique constraints
+        Tests that multiple user can have a NULL email, as unique constraints
         typically don't apply to NULL values.
         """
-        user1 = User(username="no_email_user1", hashed_password="hash1", email=None)
-        user2 = User(username="no_email_user2", hashed_password="hash2", email=None)
+        user1 = DBUser(username="no_email_user1", hashed_password="hash1", email=None)
+        user2 = DBUser(username="no_email_user2", hashed_password="hash2", email=None)
         db_session.add_all([user1, user2])
 
         # This should succeed
@@ -144,21 +144,21 @@ class TestUserModel:
         """
         Tests that a commit with a null password fails.
         """
-        user = User(username="user_no_pass", hashed_password=None)
+        user = DBUser(username="user_no_pass", hashed_password=None)
         db_session.add(user)
 
         with pytest.raises(IntegrityError):
             await db_session.commit()
 
-        # Verify no users were created.
-        count = await raw_db_session.scalar(select(func.count()).select_from(User))
+        # Verify no user were created.
+        count = await raw_db_session.scalar(select(func.count()).select_from(DBUser))
         assert count == 0
 
     # --- TimestampMixin Tests ---
 
     async def test_timestamps_on_create(self, db_session: AsyncSession) -> None:
         now = datetime.now(timezone.utc)  # Ensure timezone-aware datetime
-        user = User(username="timestamp_user", hashed_password="a_hash")
+        user = DBUser(username="timestamp_user", hashed_password="a_hash")
         db_session.add(user)
         await db_session.commit()
         await db_session.refresh(user)
@@ -170,7 +170,7 @@ class TestUserModel:
         assert abs(user.updated_at - user.created_at) < timedelta(seconds=1)
 
     async def test_updated_at_on_update(self, db_session: AsyncSession) -> None:
-        user = User(username="update_user", hashed_password="a_hash")
+        user = DBUser(username="update_user", hashed_password="a_hash")
         db_session.add(user)
         await db_session.commit()
         await db_session.refresh(user)

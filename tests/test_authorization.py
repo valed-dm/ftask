@@ -10,7 +10,7 @@ async def test_auth_workflow(app_with_db, async_client, test_user):
     username, password = test_user
 
     login_response = await async_client.post(
-        "/token",
+        "users/token",
         data={"username": username, "password": password},
     )
 
