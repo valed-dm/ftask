@@ -1,4 +1,5 @@
 from logging.config import fileConfig
+import os
 
 from alembic import context
 from sqlalchemy import Connection
@@ -6,18 +7,31 @@ from sqlalchemy import MetaData
 from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
-from app.db import User
+from app.task.models import Task
+from app.user.models import User
 
 
-# Get alembic config
 config = context.config
+
+# Get the raw URL template from the .ini file
+raw_db_url = config.get_main_option("sqlalchemy.url")
+
+if raw_db_url is None:
+    raise ValueError("The 'sqlalchemy.url' option is not set in your alembic.ini file.")
+
+# Expand the shell-like environment variables in the URL
+# This will replace ${POSTGRES_USER} with the actual value, etc.
+expanded_db_url = os.path.expandvars(raw_db_url)
+config.set_main_option("sqlalchemy.url", expanded_db_url)
+
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Create a temporary metadata object for the users table
 target_metadata = MetaData()
+
 User.metadata.tables["users"].to_metadata(target_metadata)
+Task.metadata.tables["tasks"].to_metadata(target_metadata)
 
 
 def run_migrations_offline() -> None:
