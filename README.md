@@ -7,9 +7,9 @@
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 
-A high-performance, asynchronous task management API built with FastAPI. 
-This project features a robust, layered architecture, secure JWT token-based authentication, 
-and flexible role-based authorization using scopes. It is fully containerized with Docker for easy, 
+A high-performance, asynchronous task management API built with FastAPI.
+This project features a robust, layered architecture, secure JWT token-based authentication,
+and flexible role-based authorization using scopes. It is fully containerized with Docker for easy,
 reproducible deployments.
 
 ---
@@ -115,7 +115,7 @@ This command will:
 - Pull the official postgres image.
 - Start both containers.
 - The application container will wait for the database to be ready, run any pending migrations, and then start the Uvicorn server.
- 
+
 ---
 
 ### API Endpoints Overview
