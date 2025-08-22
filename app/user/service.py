@@ -63,7 +63,7 @@ async def create_user(db: AsyncSession, user_data: UserCreate) -> UserOut:
 
     try:
         async with db.begin_nested():
-            created_user = await repository.add_user(db, db_user)
+            created_user = await repository.save(db, db_user)
 
         return UserOut.model_validate(created_user)
     except IntegrityError as e:
@@ -108,12 +108,10 @@ async def update_user_by_id(
                 detail=f"User with ID {user_id} not found.",
             )
 
-        user = _apply_update_to_user(user, update_data)
+        user_to_update = _apply_update_to_user(user, update_data)
+        updated_user = await repository.save(db, user_to_update)
 
-        db.add(user)
-        await db.flush()
-        await db.refresh(user)
-        return user
+    return updated_user
 
 
 async def update_own_profile(
@@ -124,9 +122,7 @@ async def update_own_profile(
     explicit, atomic transaction.
     """
     async with db.begin():
-        user = _apply_update_to_user(user, update_data)
+        user_to_update = _apply_update_to_user(user, update_data)
+        updated_user = await repository.save(db, user_to_update)
 
-        db.add(user)
-        await db.flush()
-        await db.refresh(user)
-        return user
+    return updated_user

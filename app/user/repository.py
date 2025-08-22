@@ -85,16 +85,19 @@ async def get_by_username_or_email(
     return result.scalar_one_or_none()
 
 
-async def add_user(db: AsyncSession, user: User) -> User:
+async def save(db: AsyncSession, user: User) -> User:
     """
-    Add a new user object to the database.
+    Saves a user instance to the database.
+
+    Handles both creation of new users and updates to existing users by
+    adding the object to the session and flushing changes.
 
     Args:
         db: The SQLAlchemy asynchronous session.
-        user: The user model instance to add.
+        user: The user model instance to save.
 
     Returns:
-        The newly created user instance with its database-generated ID.
+        The saved user instance, refreshed with its state from the database.
     """
     db.add(user)
     await db.flush()
