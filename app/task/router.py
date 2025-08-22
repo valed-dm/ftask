@@ -36,7 +36,7 @@ async def create_task(
     current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
 ) -> Task:
     """Create a new task for the current user."""
-    return await create_new_task(db, task_in, current_user)
+    return await create_new_task(db, task_in, current_user.id)
 
 
 @router.get("/{task_id}", response_model=TaskOut)
@@ -46,7 +46,7 @@ async def get_task(
     current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
 ) -> Task:
     """Retrieve a specific task owned by the current user."""
-    return await get_task_by_id(db, task_id, current_user)
+    return await get_task_by_id(db, task_id, current_user.id)
 
 
 @router.get("/", response_model=list[TaskOut])
@@ -55,7 +55,7 @@ async def get_tasks(
     current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
 ) -> list[Task]:
     """Retrieve all tasks for the current user."""
-    return await get_all_tasks_for_user(db, current_user)
+    return await get_all_tasks_for_user(db, current_user.id)
 
 
 @router.put("/{task_id}", response_model=TaskOut)
@@ -66,7 +66,7 @@ async def update_task(
     current_user: Annotated[User, Security(get_current_active_user, scopes=["user"])],
 ) -> Task:
     """Update a task owned by the current user."""
-    return await update_existing_task(db, task_id, task_in, current_user)
+    return await update_existing_task(db, task_id, task_in, current_user.id)
 
 
 @router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)

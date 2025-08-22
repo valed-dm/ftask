@@ -12,7 +12,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.task.models import Task
-from app.user.models import User
 
 
 async def get_by_id(db: AsyncSession, task_id: str) -> Task | None:
@@ -32,20 +31,33 @@ async def get_by_id(db: AsyncSession, task_id: str) -> Task | None:
     return result.scalar_one_or_none()
 
 
-async def get_all_for_owner(db: AsyncSession, owner: User) -> list[Task]:
+async def get_by_id_with_owner(db: AsyncSession, task_id: str) -> Task | None:
+    """
+    Retrieve a single task by its ID, eagerly loading the owner relationship.
+    """
+    stmt = (
+        select(Task)
+        .where(Task.id == task_id)
+        .options(selectinload(Task.owner))
+    )
+    result = await db.execute(stmt)
+    return result.scalar_one_or_none()
+
+
+async def get_all_for_owner(db: AsyncSession, owner_id: int) -> list[Task]:
     """
     Retrieve all tasks for a specific owner, eagerly loading relationships.
 
     Args:
         db: The SQLAlchemy asynchronous session.
-        owner: The User model instance to filter tasks by.
+        owner_id: owner id
 
     Returns:
         A list of Task model instances owned by the user.
     """
     stmt = (
         select(Task)
-        .where(Task.owner_id == owner.id)
+        .where(Task.owner_id == owner_id)
         .options(selectinload(Task.owner))
         .order_by(Task.id)  # Order by ID for consistent pagination
     )
@@ -53,29 +65,15 @@ async def get_all_for_owner(db: AsyncSession, owner: User) -> list[Task]:
     return list(result.scalars().all())
 
 
-async def create(db: AsyncSession, task: Task) -> Task:
+async def save(db: AsyncSession, task: Task) -> Task:
     """
-
-    Adds a new task to the database and returns the complete object.
-
-    Flushes the new task to get its ID, then re-fetches it with the
-    owner relationship eagerly loaded to prepare it for serialization.
-
-    Args:
-        db: The SQLAlchemy asynchronous session.
-        task: The new Task model instance to add.
-
-    Returns:
-        The newly created Task instance, fully loaded.
+    Saves a task instance to the database (handles both create and update).
+    This is a simple, transaction-agnostic persistence method.
     """
     db.add(task)
     await db.flush()
-
-    stmt = select(Task).where(Task.id == task.id).options(selectinload(Task.owner))
-    result = await db.execute(stmt)
-    created_task_with_owner = result.scalar_one()
-
-    return created_task_with_owner
+    await db.refresh(task)
+    return task
 
 
 async def delete(db: AsyncSession, task: Task) -> None:
