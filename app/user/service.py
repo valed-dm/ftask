@@ -62,7 +62,9 @@ async def create_user(db: AsyncSession, user_data: UserCreate) -> UserOut:
     )
 
     try:
-        created_user = await repository.add_user(db, db_user)
+        async with db.begin_nested():
+            created_user = await repository.add_user(db, db_user)
+
         return UserOut.model_validate(created_user)
     except IntegrityError as e:
         log.warning(
