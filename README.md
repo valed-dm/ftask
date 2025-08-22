@@ -1,47 +1,83 @@
-# Scoped API
+# ftask - FastAPI Task Manager
 
-# User Authentication & Management API
-
-![Python](https://img.shields.io/badge/python-3.10+-blue)
+![Python](https://img.shields.io/badge/python-3.12-blue)
 ![FastAPI](https://img.shields.io/badge/FastAPI-asyncio-brightgreen)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-relational-blue)
+[![Docker](https://img.shields.io/badge/Docker-available-%230db7ed)](https://www.docker.com/)
 ![License](https://img.shields.io/badge/license-MIT-green)
+
+
+A high-performance, asynchronous task management API built with FastAPI. 
+This project features a robust, layered architecture, secure JWT token-based authentication, 
+and flexible role-based authorization using scopes. It is fully containerized with Docker for easy, 
+reproducible deployments.
 
 ---
 
 ## Overview
 
-This project is a secure and scalable **User Authentication and Management API** built using **FastAPI**. It provides RESTful endpoints for user registration, authentication, profile management, and administrative user operations with role-based access control.
-
-The API leverages modern Python asynchronous features and JWT token-based security to deliver fast and secure user management functionality suitable for web and mobile applications.
-
 ---
 
 ## Features
 
-- **User Registration:** Create new users with unique usernames and emails.
-- **User Authentication:** Authenticate users with username and password.
-- **JWT-based Authorization:** OAuth2 compatible access tokens with fine-grained scopes.
-- **User Profile Management:** Retrieve and update personal profile data.
-- **Admin Management:** Admin-only endpoints for listing and updating users.
-- **Password Hashing:** Secure password storage using bcrypt.
-- **Database Metrics:** Prometheus metrics for monitoring DB connection pool and transactions.
-- **Async Database Access:** Fully asynchronous SQLAlchemy ORM with PostgreSQL.
-- **Dependency Injection:** Leveraging FastAPI's dependency injection for clean architecture.
+### 🚀 Modern Architecture
+- **Asynchronous & High-Performance**: Built with **FastAPI** and **SQLAlchemy 2.0**.
+- **Clean Layered Design**: Organized into router, service, and repository layers.
+- **Dependency Injection**: Uses FastAPI’s DI for maintainable and testable code.
+- **Production-Ready Logging**: Structured and configurable logging with **Loguru**.
+
+### 🔒 Security & Authentication
+- **Secure Authentication**: Robust **JWT** token-based flow.
+- **Role-Based Authorization**: Flexible scopes (e.g., `user` vs. `admin`).
+- **Password Hashing**: Safe password storage using **bcrypt**.
+
+### 👤 User & Admin Management
+- **User Registration**: Unique username and email validation.
+- **User Authentication**: Login with username and password.
+- **User Profile**: Retrieve and update personal data.
+- **Admin Tools**: Admin-only endpoints for managing users.
+
+### 🗄️ Database & Migrations
+- **Async Database Access**: Fully asynchronous **SQLAlchemy ORM** with PostgreSQL.
+- **Database Migrations**: Version-controlled schema with **Alembic**.
+- **Database Metrics**: **Prometheus** metrics for connection pool & transactions.
+
+### 🐳 Containerization & Deployment
+- **Fully Containerized**: Production-ready **Docker Compose** setup (app + DB).
+- **Robust Startup**: Entrypoint waits for DB and applies migrations automatically.
+
+### 📖 Developer Experience
+- **Interactive API Docs**: Auto-generated **Swagger UI** & **ReDoc**.
 
 ---
 
-## Technologies Used
+## Tech Stack
 
-- **Python 3.10+**
-- **FastAPI** — high-performance asynchronous web framework
-- **SQLAlchemy (async)** — asynchronous ORM for PostgreSQL
+### 🐍 Core
+- **Python 3.12**
+- **FastAPI** — modern async web framework
+- **Uvicorn** — lightning-fast ASGI server
+
+### 🗄️ Database Layer
 - **PostgreSQL** — robust relational database
-- **bcrypt** — secure password hashing
-- **PyJWT** — JSON Web Token creation and validation
-- **Pydantic** — data validation and parsing
-- **Prometheus Client** — monitoring and metrics
-- **Uvicorn** — ASGI server for running FastAPI apps
+- **SQLAlchemy (async)** — ORM with async support via `asyncpg`
+- **Alembic** — database migrations
+- **Prometheus Client** — DB connection pool & transaction metrics
+
+### 🔒 Security & Auth
+- **bcrypt** — password hashing
+- **PyJWT / python-jose** — JWT authentication & authorization
+
+### 📦 Tooling & Dev Experience
+- **Pydantic** — data validation & parsing
+- **Poetry** — dependency management
+- **Ruff** — linter & formatter
+- **Mypy** — static type checking
+- **Pytest** — testing framework
+- **Pre-commit** — Git hooks for code quality
+
+### 🐳 Containerization
+- **Docker & Docker Compose** — containerized, production-ready setup
 
 ---
 
@@ -50,69 +86,65 @@ The API leverages modern Python asynchronous features and JWT token-based securi
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/valed-dm/scoped-api.git
-   cd scoped-api
+   git clone https://github.com/valed-dm/ftask.git
+   cd ftask
    ```
 
-2. **Create and activate a virtual environment:**
+2. **Create the Environment File:**
 
-    ```bash
-       python -m venv venv
-       source venv/bin/activate # linux/macOS
-       venv\Scripts\activate # windows
-    ```
-
-3. **Install dependencies:**
-
-    ```bash
-    poetry install --no-root
-    ```
-
-4. **Configure environment variables:**
-
-    ```bash
-    cp .env.example .env # edit secrets
-    ```
-
+ ```bash
+   cp .env.example .env
+```
    - DATABASE_URL (PostgreSQL connection string)
    - SECRET_KEY (JWT signing secret)
    - ALGORITHM (e.g., HS256)
    - ACCESS_TOKEN_EXPIRE_MINUTES (token expiry duration)
    - Other app-specific settings as needed
 
-5. **Run database migrations:**
 
-    ```bash
-    alembic upgrade head
-    ```
+3. **Build and Run the Application:**
 
-6. **Start the server:**
 
-    ```bash
-     uvicorn app.main:app --reload --log-level debug
-    ```
+```bash
+  docker-compose up --build -d
+```
 
-7. **Access API documentation:**
+This command will:
 
-   - Swagger UI: http://localhost:8000/docs
-   - Redoc: http://localhost:8000/redoc
+- Build the ftask-app Docker image based on the Dockerfile.
+- Pull the official postgres image.
+- Start both containers.
+- The application container will wait for the database to be ready, run any pending migrations, and then start the Uvicorn server.
+ 
+---
 
-## API Endpoints Reference
+### API Endpoints Overview
 
-| Endpoint               | Method | Description                          | Authorization      |
-|------------------------|--------|--------------------------------------|--------------------|
-| `/register`            | POST   | Register a new user                  | Public             |
-| `/token`               | POST   | Obtain JWT access token (login)      | Public             |
-| `/users/me/`           | GET    | Get current user profile             | Authenticated user |
-| `/users/me/update/`    | PUT    | Update current user's data           | Authenticated user |
-| `/admin/users/`        | GET    | List all users (paginated)           | Admin only         |
-| `/admin/users/{id}`    | PATCH  | Update any user's data               | Admin only         |
-| `/admin/status/`       | GET    | Get system health status             | Admin only         |
+- API Root (redirects to docs): http://localhost:8000
+- Interactive Docs (Swagger UI): http://localhost:8000/docs
+- Prometheus Metrics: http://localhost:8000/metrics
 
-### Key:
-- **Public**: No authentication required
-- **Authenticated user**: Requires valid JWT token
-- **Admin only**: Requires admin privileges + valid JWT token
+
+| Endpoint | Method | Description | Authorization |
+|---|---|---|---|
+| **Authentication** | | | |
+| `/users/register` | POST | Register a new user account. | Public |
+| `/users/token` | POST | Obtain a JWT access token (login). | Public |
+| **User Profile (Self)** | | | |
+| `/users/me` | GET | Get the current authenticated user's profile. | Authenticated (`user`) |
+| `/users/me` | PUT | Update the current authenticated user's profile. | Authenticated (`user`) |
+| **Task Management** | | | |
+| `/tasks/` | POST | Create a new task for the current user. | Authenticated (`user`) |
+| `/tasks/` | GET | Retrieve all tasks owned by the current user. | Authenticated (`user`) |
+| `/tasks/{task_id}` | GET | Retrieve a specific task by its ID. | Authenticated (`user`, owner) |
+| `/tasks/{task_id}` | PUT | Update a specific task by its ID. | Authenticated (`user`, owner) |
+| `/tasks/{task_id}` | DELETE | Delete a specific task by its ID. | Authenticated (`user`, owner) or Admin |
+| **Admin** | | | |
+| `/admin/users/` | GET | List all users in the system (paginated). | Admin only (`admin`) |
+| `/admin/users/{user_id}`| PATCH | Fully update any user's profile by their ID. | Admin only (`admin`) |
+| `/admin/status/` | GET | Get a system health or status report. | Admin only (`admin`) |
+
+---
 
 ## Security & Authentication
 
@@ -131,6 +163,8 @@ The API leverages modern Python asynchronous features and JWT token-based securi
 - 👮 Admin routes require both valid token and admin privileges
 - ⏱️ Tokens have configurable expiration for enhanced security
 
+---
+
 ## Monitoring & Metrics
 
 | Component               | Monitoring Solution      | Benefits                          |
@@ -147,6 +181,10 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 
 ### SCREENSHOTS:
+
+[<img src="docs/images/img_17.png" width="600"/>]()
+
+[<img src="docs/images/img_18.png" width="600"/>]()
 
 [<img src="docs/images/img_01.png" width="1000"/>]()
 
@@ -179,3 +217,11 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 [<img src="docs/images/img_15.png" width="1000"/>]()
 
 [<img src="docs/images/img_16.png" width="1000"/>]()
+
+[<img src="docs/images/img_19.png" width="1000"/>]()
+
+[<img src="docs/images/img_20.png" width="1000"/>]()
+
+[<img src="docs/images/img_21.png" width="1000"/>]()
+
+[<img src="docs/images/img_22.png" width="1000"/>]()
