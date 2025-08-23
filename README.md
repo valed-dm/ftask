@@ -182,6 +182,9 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ### SCREENSHOTS:
 
+#### TEST COVERAGE:
+[<img src="docs/images/img_23.png" width="1000"/>]()
+
 [<img src="docs/images/img_17.png" width="600"/>]()
 
 [<img src="docs/images/img_18.png" width="600"/>]()
